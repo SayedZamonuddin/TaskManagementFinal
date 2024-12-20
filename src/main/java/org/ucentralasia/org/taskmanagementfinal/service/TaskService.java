@@ -6,6 +6,7 @@ import org.ucentralasia.org.taskmanagementfinal.domain.Task;
 import org.ucentralasia.org.taskmanagementfinal.domain.Team;
 import org.ucentralasia.org.taskmanagementfinal.domain.User;
 import org.ucentralasia.org.taskmanagementfinal.dto.TaskRequest;
+import org.ucentralasia.org.taskmanagementfinal.dto.TaskResponse;
 import org.ucentralasia.org.taskmanagementfinal.enums.TaskPriority;
 import org.ucentralasia.org.taskmanagementfinal.enums.TaskStatus;
 import org.ucentralasia.org.taskmanagementfinal.exception.ResourceNotFoundException;
@@ -14,6 +15,7 @@ import org.ucentralasia.org.taskmanagementfinal.repository.TeamRepository;
 import org.ucentralasia.org.taskmanagementfinal.repository.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -27,7 +29,7 @@ public class TaskService {
     @Autowired
     private TeamRepository teamRepository;
 
-    public Task createTask(String username, TaskRequest request) {
+    public TaskResponse createTask(String username, TaskRequest request) {
         User user = userService.findByUsername(username);
 
         Task task = new Task();
@@ -44,22 +46,39 @@ public class TaskService {
             task.setAssignedTeam(team);
         }
 
-        return taskRepository.save(task);
+        Task savedTask = taskRepository.save(task);
+        return convertToDto(savedTask);
     }
 
-    public List<Task> getUserTasks(String username) {
+    public List<TaskResponse> getUserTasks(String username) {
         User user = userService.findByUsername(username);
-        return taskRepository.findByCreatedById(user.getId());
+        List<Task> tasks = taskRepository.findByCreatedById(user.getId());
+        return tasks.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    public List<Task> getTeamTasks(Long teamId) {
-        return taskRepository.findByAssignedTeamId(teamId);
+    public List<TaskResponse> getTeamTasks(Long teamId) {
+        List<Task> tasks = taskRepository.findByAssignedTeamId(teamId);
+        return tasks.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    public Task updateTaskStatus(Long taskId, TaskStatus status) {
+    public TaskResponse updateTaskStatus(Long taskId, TaskStatus status) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found"));
         task.setStatus(status);
-        return taskRepository.save(task);
+        Task updatedTask = taskRepository.save(task);
+        return convertToDto(updatedTask);
+    }
+
+    private TaskResponse convertToDto(Task task) {
+        TaskResponse dto = new TaskResponse();
+        dto.setId(task.getId());
+        dto.setTitle(task.getTitle());
+        dto.setDescription(task.getDescription());
+        dto.setPriority(task.getPriority());
+        dto.setStatus(task.getStatus());
+        dto.setDueDate(task.getDueDate());
+        dto.setCreatedByUsername(task.getCreatedBy().getUsername());
+        dto.setAssignedTeamName(task.getAssignedTeam() != null ? task.getAssignedTeam().getName() : null);
+        return dto;
     }
 }

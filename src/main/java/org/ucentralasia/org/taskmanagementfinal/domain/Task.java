@@ -1,5 +1,6 @@
 package org.ucentralasia.org.taskmanagementfinal.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.ucentralasia.org.taskmanagementfinal.enums.TaskPriority;
@@ -28,10 +29,12 @@ public class Task {
     private LocalDateTime dueDate;
 
     @ManyToOne
-    @JoinColumn(name = "created_by_id")
+    @JoinColumn(name = "created_by_id", nullable = false)
+    @JsonBackReference("user-tasks")
     private User createdBy;
 
     @ManyToOne
     @JoinColumn(name = "assigned_team_id")
+    @JsonBackReference("team-tasks")
     private Team assignedTeam;
 }

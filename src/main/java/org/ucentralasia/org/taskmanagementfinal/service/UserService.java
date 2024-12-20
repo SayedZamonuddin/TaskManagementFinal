@@ -1,6 +1,7 @@
 package org.ucentralasia.org.taskmanagementfinal.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.ucentralasia.org.taskmanagementfinal.domain.User;
 import org.ucentralasia.org.taskmanagementfinal.dto.UserRegistrationRequest;
@@ -16,6 +17,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public User registerUser(UserRegistrationRequest request) {
         Optional<User> existing = userRepository.findByUsername(request.getUsername());
         if (existing.isPresent()) {
@@ -24,7 +28,7 @@ public class UserService {
 
         User user = new User();
         user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword()); // In production: encode password
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setEmail(request.getEmail());
 
         return userRepository.save(user);
