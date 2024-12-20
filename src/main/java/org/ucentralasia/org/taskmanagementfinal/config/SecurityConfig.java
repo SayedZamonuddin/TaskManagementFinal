@@ -40,7 +40,7 @@ public class SecurityConfig {
                 // Set permissions on endpoints
                 .authorizeHttpRequests()
                 // Allow registration and login without authentication
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/**", "https://taskmanagementfinal.onrender.com/api/auth/**").permitAll()
                 // Allow H2 console (for development purposes)
                 .requestMatchers("/h2-console/**").permitAll()
                 // Any other request must be authenticated
