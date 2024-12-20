@@ -1,6 +1,0 @@
-services:
-  - type: web
-    name: task-management-final
-    env: java
-    buildCommand: "./gradlew build"
-    startCommand: "java -jar build/libs/*.jar"
