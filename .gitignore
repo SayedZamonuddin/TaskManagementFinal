@@ -55,7 +55,4 @@ logs/
 *.swp
 .DS_Store
 
-# Application properties
-application.properties
-application.yml
 
